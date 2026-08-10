@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [postgis] // PostGIS 확장 모듈 활성화
+}
+
+model Drop {
+  id      String    @id @default(uuid())
+  content String    @db.VarChar(500)
+
+  // 위치 데이터
+  latitude      Float
+  longitude     Float
+
+  // 휘발성(Time-Bomb) 관리를 위한 만료 시각
+  expiresAt     DateTime    @map("expires_at")
+
+  // 생성 및 수정 시각
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt  @map("updated_at")
+
+  @@map("drops")
+  @@index([latitude, longitude])
+  @@index([expiresAt])
+}
