@@ -13,22 +13,83 @@ datasource db {
   extensions = [postgis] // PostGIS 확장 모듈 활성화
 }
 
+model User {
+  id         String @id @default(uuid())
+  provider   String @default("google")
+  providerId String @map("provider_id")
+  status     String @default("ACTIVE") @db.VarChar(20) // ACTIVE, BANNED, WITHDRAWN
+
+  drops    Drop[]
+  comments Comment[]
+  votes    DropVote[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([provider, providerId])
+  @@map("users")
+}
+
 model Drop {
-  id      String    @id @default(uuid())
-  content String    @db.VarChar(500)
+  id      String @id @default(uuid())
+  content String @db.VarChar(500)
 
   // 위치 데이터
-  latitude      Float
-  longitude     Float
+  latitude  Float
+  longitude Float
 
   // 휘발성(Time-Bomb) 관리를 위한 만료 시각
-  expiresAt     DateTime    @map("expires_at")
+  expiresAt DateTime @map("expires_at")
+
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // UI 렌더링 성능 최적화를 위한 카운트 캐싱
+  likeCount    Int @default(0) @map("like_count")
+  dislikeCount Int @default(0) @map("dislike_count")
+  commentCount Int @default(0) @map("comment_count")
 
   // 생성 및 수정 시각
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt  @map("updated_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  comments  Comment[]
+  dropVotes DropVote[]
 
-  @@map("drops")
   @@index([latitude, longitude])
   @@index([expiresAt])
+  @@index([authorId])
+  @@map("drops")
+}
+
+model Comment {
+  id       String @id @default(uuid())
+  content  String @db.VarChar(200)
+  dropId   String @map("drop_id")
+  authorId String @map("author_id")
+
+  // 원본 Drop 삭제 시 댓글 연쇄 삭제 (UX-03 자동 휘발성 동기화)
+  drop   Drop @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([dropId])
+  @@map("comments")
+}
+
+model DropVote {
+  id   String @id @default(uuid())
+  type String @db.VarChar(10) // "LIKE" 또는 "DISLIKE"
+
+  dropId   String @map("drop_id")
+  authorId String @map("author_id")
+
+  drop   Drop @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([dropId, authorId]) // 중복 투표 방지용 복합 유니크
+  @@map("drop_votes")
 }
