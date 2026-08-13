@@ -1,3 +1,7 @@
+/**
+ * 비즈니스 로직(Service, Entity 등)에서 발생하는 에러를 명확하게 식별하고, 
+ * HTTP 상태 코드가 아닌 비즈니스 에러 코드로 관리하기 위한 커스텀 예외 클래스
+ */
 export abstract class DomainException extends Error {
     public readonly code: string;
     public readonly details?: Record<string, any>;
