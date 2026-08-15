@@ -1,6 +1,6 @@
 import { User } from '../../../domain/user.entity';
 
-export const UserRepositoryPorySymbol = Symbol('UserRepositoryPort');
+export const UserRepositoryPortSymbol = Symbol('UserRepositoryPort');
 
 export interface UserRepositoryPort {
     save(user: User): Promise<User>;
