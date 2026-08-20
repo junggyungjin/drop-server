@@ -1,7 +1,9 @@
 import { Controller, Post, Body, Inject, HttpCode, HttpStatus } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse as SwaggerResponse } from "@nestjs/swagger";
 import { type LoginUseCase, LoginUseCaseSymbol } from "src/modules/auth/application/port/in/login.usecase";
+import { type RefreshTokenUseCase, RefreshTokenUseCaseSymbol } from "src/modules/auth/application/port/in/refresh-token.usecase";
 import { LoginRequestDto } from "./dto/login.request.dto";
+import { RefreshTokenRequestDto } from "./dto/refresh-token.request.dto";
 import { ApiResponse } from "src/common/dto/api-response.dto";
 import { LoginResult } from "src/modules/auth/application/port/in/dto/login.result";
 
@@ -12,6 +14,8 @@ export class AuthController {
         // 구현체가 아닌 '인터페이스(Port)' 심볼을 주입받아 결합도를 낮춘다
         @Inject(LoginUseCaseSymbol)
         private readonly loginUseCase: LoginUseCase,
+        @Inject(RefreshTokenUseCaseSymbol)
+        private readonly refreshTokenUseCase: RefreshTokenUseCase,
     ) { }
 
     @Post('google/login')
@@ -27,5 +31,17 @@ export class AuthController {
 
         // 3. 프로젝트 룰에 따라 명시적으로 ApiResponse.OK 로 감싸서 반환
         return ApiResponse.OK(result); // return result; 로 해도 인터셉트가 알아서 포장을 해주긴 함
+    }
+
+    @Post('refresh')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: '토큰 갱신', description: '만료된 Access Token을 Refresh Token을 이용해 재발급받습니다.' })
+    @SwaggerResponse({ status: 200, description: '토큰 갱신 성공 (새 Access/Refresh Token 반환)' })
+    async refresh(@Body() dto: RefreshTokenRequestDto): Promise<ApiResponse<LoginResult>> {
+        const command = dto.toCommand();
+
+        const result = await this.refreshTokenUseCase.execute(command);
+
+        return ApiResponse.OK(result);
     }
 }

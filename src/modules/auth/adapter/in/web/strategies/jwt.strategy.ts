@@ -10,6 +10,9 @@ export type JwtPayload = {
     exp: number; // 만료 시간
 }
 
+/**
+ * 앱에서 보내온 Access Token을 뜯어보고 유효성을 검사
+ */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     constructor(private readonly configService: ConfigService) {
@@ -20,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         super({
             // 1. 헤더에서 Bearer 토큰 추출
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            // 2. 만료된 토큰은 얄짤없이 컷
+            // 2. 만료된 토큰은 컷
             ignoreExpiration: false,
             // 3. 토큰을 뜯어볼 비밀키 제공
             secretOrKey: secret,

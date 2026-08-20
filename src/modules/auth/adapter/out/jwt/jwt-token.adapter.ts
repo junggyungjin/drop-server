@@ -1,7 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { TokenPort } from '../../../application/port/out/token.port'
+import { InvalidTokenException } from "src/modules/auth/domain/exceptions/invalid-token.exception";
+import { SignOptions } from 'jsonwebtoken'
 
 @Injectable()
 export class JwtTokenAdapter implements TokenPort {
@@ -31,7 +33,7 @@ export class JwtTokenAdapter implements TokenPort {
         const payload = { id: userId };
         return this.jwtService.signAsync(payload, {
             secret: this.accessSecret,
-            expiresIn: this.accessExpiresIn as any
+            expiresIn: this.accessExpiresIn as SignOptions['expiresIn']
         });
     }
 
@@ -39,7 +41,20 @@ export class JwtTokenAdapter implements TokenPort {
         const payload = { id: userId };
         return this.jwtService.signAsync(payload, {
             secret: this.refreshSecret,
-            expiresIn: this.refreshExpiresIn as any
+            expiresIn: this.refreshExpiresIn as SignOptions['expiresIn']
         });
+    }
+
+    async verifyRefreshToken(token: string): Promise<string> {
+        try {
+            const payload = await this.jwtService.verifyAsync(token, {
+                secret: this.refreshSecret,
+            });
+            // 검증 성공 시 토큰 안에 들어있던 userId 리턴
+            return payload.id;
+        } catch (error) {
+            // 만료되었거나 변조된 토큰일 경우 에러 발생
+            throw new InvalidTokenException();
+        }
     }
 }

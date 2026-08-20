@@ -10,6 +10,8 @@ import { OAuthPortSymbol } from "./application/port/out/oauth.port";
 import { TokenPortSymbol } from "./application/port/out/token.port";
 import { JwtStrategy } from "./adapter/in/web/strategies/jwt.strategy";
 import { UserModule } from '../user/user.module';
+import { RefreshTokenUseCaseSymbol } from "./application/port/in/refresh-token.usecase";
+import { RefreshTokenService } from "./application/service/refresh-token.service";
 
 @Module({
     imports: [
@@ -34,6 +36,10 @@ import { UserModule } from '../user/user.module';
         {
             provide: TokenPortSymbol,
             useClass: JwtTokenAdapter,
+        },
+        {
+            provide: RefreshTokenUseCaseSymbol,
+            useClass: RefreshTokenService,
         },
         JwtStrategy,
     ],
