@@ -31,7 +31,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         if (exception instanceof DomainException) {
             // 1. 우리가 정의한 도메인 비즈니스 예외 처리
-            status = HttpStatus.BAD_REQUEST;
+            if (
+                exception.code === 'INVALID_TOKEN' ||
+                exception.code === 'USER_NOT_FOUND' ||
+                exception.code === 'UNAUTHORIZED_OAUTH_TOKEN'
+            ) {
+                status = HttpStatus.UNAUTHORIZED; // 401
+            } else if (exception.code === 'USER_BANNED') {
+                status = HttpStatus.FORBIDDEN; // 403
+            } else {
+                status = HttpStatus.BAD_REQUEST; // 400
+            }
+
             code = exception.code;
             message = exception.message;
             details = exception.details;
