@@ -1,9 +1,21 @@
 import { Module } from "@nestjs/common";
 import { UserRepositoryPortSymbol } from "./application/port/out/user.repository.port";
 import { UserRepositoryAdapter } from "./adapter/out/persistence/user.repository.adapter";
+import { UserController } from "./adapter/in/web/user.controller";
+import { GetMyProfileService } from "./application/service/get-my-profile.service";
+import { GetMyProfileUseCaseSymbol } from "./application/port/in/get-my-profile.usecase";
 
 @Module({
+    controllers: [
+        UserController,
+    ],
     providers: [
+        // 1. Service 구현체를 실제 클래스로 직접 등록 (NestJS 싱글톤)
+        GetMyProfileService,
+        {
+            provide: GetMyProfileUseCaseSymbol,
+            useExisting: GetMyProfileService,
+        },
         {
             provide: UserRepositoryPortSymbol,
             useClass: UserRepositoryAdapter,

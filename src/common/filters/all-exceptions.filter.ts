@@ -39,6 +39,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
                 status = HttpStatus.UNAUTHORIZED; // 401
             } else if (exception.code === 'USER_BANNED') {
                 status = HttpStatus.FORBIDDEN; // 403
+            } else if (exception.code === 'USER_PROFILE_NOT_FOUND') {
+                status = HttpStatus.NOT_FOUND; // 404
             } else {
                 status = HttpStatus.BAD_REQUEST; // 400
             }
