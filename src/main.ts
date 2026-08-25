@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
@@ -21,7 +22,10 @@ async function bootstrap() {
   );
 
   // 3. 전역 인터셉터 (성공 시 ApiResponse.OK 포맷 자동 감싸기)
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new LoggingInterceptor(),
+    new TransformInterceptor(),
+  );
 
   // 4. 전역 예외 필터 (실패 시 ApiResponse.ERROR 포맷으로 변환)
   app.useGlobalFilters(new AllExceptionsFilter());
