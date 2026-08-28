@@ -7,7 +7,7 @@ import type { DropRepositoryPort } from "../port/out/drop.repository.port";
 import { DropRepositoryPortSymbol } from "../port/out/drop.repository.port";
 
 @Injectable()
-export class GetNearByDropService implements GetNearbyDropsUseCase {
+export class GetNearByDropsService implements GetNearbyDropsUseCase {
     private readonly defaultMaxRadius = 200;
     private readonly defaultFetchLimit = 50;
 
