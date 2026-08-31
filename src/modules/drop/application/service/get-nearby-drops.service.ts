@@ -43,6 +43,7 @@ export class GetNearByDropsService implements GetNearbyDropsUseCase {
                     longitude: projections.drop.longitude,
                     authorNickname: projections.authorNickname,
                     likeCount: projections.drop.likeCount,
+                    dislikeCount: projections.drop.dislikeCount,
                     commentCount: projections.drop.commentCount,
                     expiresAt: projections.drop.expiresAt,
                     distance: projections.distance,

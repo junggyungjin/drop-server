@@ -15,6 +15,7 @@ export interface DropInfoResultProps {
     longitude: number;
     authorNickname: string;
     likeCount: number;
+    dislikeCount: number;
     commentCount: number;
     expiresAt: Date;
     distance: number;
@@ -28,6 +29,7 @@ export class DropInfoResult {
         public readonly longitude: number,
         public readonly author: DropAuthorResult,
         public readonly likeCount: number,
+        public readonly dislikeCount: number,
         public readonly commentCount: number,
         public readonly expiresAt: Date,
         public readonly distance: number,
@@ -41,6 +43,7 @@ export class DropInfoResult {
             props.longitude,
             DropAuthorResult.from(props.authorNickname),
             props.likeCount,
+            props.dislikeCount,
             props.commentCount,
             props.expiresAt,
             props.distance,

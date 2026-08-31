@@ -29,6 +29,9 @@ export class DropInfoResponseDto {
     @ApiProperty({ description: '좋아요 수', example: 12 })
     public readonly likeCount: number;
 
+    @ApiProperty({ description: '싫어요 수', example: 2 })
+    public readonly dislikeCount: number;
+
     @ApiProperty({ description: '댓글 수', example: 3 })
     public readonly commentCount: number;
 
@@ -40,8 +43,8 @@ export class DropInfoResponseDto {
 
     private constructor(
         id: string, content: string, latitude: number, longitude: number,
-        author: DropAuthorResponseDto, likeCount: number, commentCount: number,
-        expiresAt: string, distance: number
+        author: DropAuthorResponseDto, likeCount: number, dislikeCount: number,
+        commentCount: number, expiresAt: string, distance: number
     ) {
         this.id = id;
         this.content = content;
@@ -49,6 +52,7 @@ export class DropInfoResponseDto {
         this.longitude = longitude;
         this.author = author;
         this.likeCount = likeCount;
+        this.dislikeCount = dislikeCount;
         this.commentCount = commentCount;
         this.expiresAt = expiresAt;
         this.distance = distance;
@@ -63,6 +67,7 @@ export class DropInfoResponseDto {
             result.longitude,
             new DropAuthorResponseDto(result.author.nickname), // 중첩 객체 변환
             result.likeCount,
+            result.dislikeCount,
             result.commentCount,
             result.expiresAt.toISOString(),
             Math.round(result.distance),
