@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/modules/prisma/prisma.service";
 import { DropRepositoryPort, NearbyDropProjection } from "src/modules/drop/application/port/out/drop.repository.port";
+import { SaveDropPort } from "src/modules/drop/application/port/out/save-drop.port";
 import { Drop } from "src/modules/drop/domain/drop.entity";
 
 export type NearbyDropRawResult = {
@@ -20,7 +21,7 @@ export type NearbyDropRawResult = {
 };
 
 @Injectable()
-export class DropRepositoryAdapter implements DropRepositoryPort {
+export class DropRepositoryAdapter implements DropRepositoryPort, SaveDropPort {
     constructor(private readonly prisma: PrismaService) { }
 
     async findNearbyDrops(
@@ -84,5 +85,39 @@ export class DropRepositoryAdapter implements DropRepositoryPort {
             authorNickname: row.authorNickname,
             distance: Number(row.distance),
         }));
+    }
+
+    async save(drop: Drop): Promise<Drop> {
+        // 도메인 엔티티를 Prisma 영속성 모델에 맞게 매핑하여 Insert
+        const savedRow = await this.prisma.drop.create({
+            data: {
+                id: drop.id,
+                content: drop.content,
+                latitude: drop.latitude,
+                longitude: drop.longitude,
+                authorId: drop.authorId,
+                likeCount: drop.likeCount,
+                dislikeCount: drop.dislikeCount,
+                commentCount: drop.commentCount,
+                expiresAt: drop.expiresAt,
+                createdAt: drop.createdAt,
+                // updatedAt은 @updatedAt 에 의해 자동 갱신됨
+            },
+        });
+
+        // DB에 저장된 결과를 다시 순수 도메인 객체(Drop)으로 복원하여 반환
+        return Drop.from({
+            id: savedRow.id,
+            content: savedRow.content,
+            latitude: savedRow.latitude,
+            longitude: savedRow.longitude,
+            authorId: savedRow.authorId,
+            likeCount: savedRow.likeCount,
+            dislikeCount: savedRow.dislikeCount,
+            commentCount: savedRow.commentCount,
+            expiresAt: savedRow.expiresAt,
+            createdAt: savedRow.createdAt,
+            updatedAt: savedRow.updatedAt,
+        });
     }
 }

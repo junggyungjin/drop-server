@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+
 export interface DropProps {
     id: string;
     content: string;
@@ -42,7 +44,7 @@ export class Drop {
      * 새로운 Drop을 생성할 때 사용 (도메인 정책 캡슐화)
      */
     public static create(
-        id: string,
+        // id: string,
         content: string,
         latitude: number,
         longitude: number,
@@ -52,8 +54,10 @@ export class Drop {
         const now = new Date();
         const expiresAt = new Date(now.getTime() + ttlHours * 60 * 60 * 1000);
 
+        const generatedId = crypto.randomUUID();
+
         return new Drop({
-            id,
+            id: generatedId,
             content,
             latitude,
             longitude,
